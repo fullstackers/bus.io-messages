@@ -1,8 +1,12 @@
-[![Build Status](https://travis-ci.org/NathanGRomano/socket-messages.svg?branch=master)](https://travis-ci.org/NathanGRomano/socket-messages.git)
-[![NPM version](https://badge.fury.io/js/socket-messages.svg)](http://badge.fury.io/js/socket-messages)
+[![Build Status](https://travis-ci.org/turbonetix/bus.io-messages.svg?branch=master)](https://travis-ci.org/turbonetix/bus.io-messages.git)
+[![NPM version](https://badge.fury.io/js/bus.io-messages.svg)](http://badge.fury.io/js/bus.io-messages)
+[![David DM](https://david-dm.org/turbonetix/bus.io-messages.png)](https://david-dm.org/turbonetix/bus.io.png)
 
-This library helps take events from client socket connections convert them into messages and allows for them to be published to a message queue.
-It was built to work with socket.io but does not require it.
+![Bus.IO](https://raw.github.com/turbonetix/bus.io/master/logo.png)
+
+A **[bus.io](https://www.npmjs.org/package/bus.io "Bus.io")** dependency.
+
+This produces messages as it listens for events on a socket.
 
 # Installation and Environment Setup
 
@@ -14,7 +18,7 @@ Install coffee-script
 
 Clone this repository
 
-    > git clone git@github.com:NathanGRomano/socket-messages.git
+    > git clone git@github.com:turbonetix/bus.io-messages.git
 
 cd into the directory and install the dependencies
 
@@ -23,14 +27,14 @@ cd into the directory and install the dependencies
 
 # Examples
 
-Here is how we can setup socket-messages and have it listen to socket.io.
+Here is how we can setup bus.io-messages and have it listen to socket.io.
 
 ```javascript
 
 var io = require('socket.io')();
 io.listen(3000);
 
-var messages = require('socket-messages').listen(io);
+var messages = require('bus.io-messages').listen(io);
 
 ```
 

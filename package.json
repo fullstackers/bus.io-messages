@@ -1,14 +1,14 @@
 {
-  "name": "socket-messages",
+  "name": "bus.io-messages",
   "version": "0.1.0",
-  "description": "This library will encapsulate messages from a socket.io socket and publish them to an object that adheres to the EventEmitter interface.",
+  "description": "This produces mesages as it listens for events on a socket.",
   "main": "index.js",
   "scripts": {
     "test": "grunt"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:nathangromano/socket-messages.git"
+    "url": "git@github.com:turbonetix/bus.io-messages.git"
   },
   "keywords": [
     "message",
@@ -17,14 +17,15 @@
     "event driven",
     "socket",
     "emitter",
-    "socket.io"
+    "socket.io",
+    "bus.io"
   ],
   "author": "Nathan G. Romano <nathan.g.romano@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nathangromano/socket-messages/issues"
+    "url": "https://github.com/turbonetix/bus.io-messages/issues"
   },
-  "homepage": "https://github.com/nathangromano/socket-messages",
+  "homepage": "https://github.com/turbonetix/bus.io-messages",
   "devDependencies": {
     "sandboxed-module": "^0.3.0",
     "coffee-script": "^1.7.1",
