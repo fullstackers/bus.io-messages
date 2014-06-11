@@ -1,1 +1,1 @@
-module.exports = require('./lib/socket-messages');
+module.exports = require('./lib/messages');

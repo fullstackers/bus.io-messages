@@ -1,21 +1,25 @@
 EventEmitter = require('events').EventEmitter
 
-describe 'SocketMessages', ->
+describe 'Messages', ->
 
-  Given -> @SocketMessages = requireSubject 'lib/socket-messages', {}
+  Given -> @Messages = requireSubject 'lib/messages', {}
+
+  describe '#', ->
+    When -> @res = @Messages()
+    Then -> expect(@res instanceof @Messages).toBe true
 
   describe '#make', ->
-    When -> @res = @SocketMessages.make()
-    Then -> expect(@res instanceof @SocketMessages).toBe true
+    When -> @res = @Messages.make()
+    Then -> expect(@res instanceof @Messages).toBe true
   
   describe '#listen', ->
 
     Given ->
       @io = new EventEmitter
       spyOn(@io,['on']).andCallThrough()
-    Given -> spyOn(@SocketMessages,['make']).andCallThrough()
-    When -> @res = @SocketMessages.listen @io
-    Then -> expect(@SocketMessages.make).toHaveBeenCalled()
+    Given -> spyOn(@Messages,['make']).andCallThrough()
+    When -> @res = @Messages.listen @io
+    Then -> expect(@Messages.make).toHaveBeenCalled()
     And -> expect(@io.on).toHaveBeenCalledWith 'connection', @res.onConnection
 
   context 'an instance', ->
@@ -29,7 +33,7 @@ describe 'SocketMessages', ->
       spyOn(@socket,['emit']).andCallThrough()
       spyOn(@socket,['on']).andCallThrough()
     Given ->
-      @instance = new @SocketMessages
+      @instance = new @Messages
       spyOn(@instance,['emit']).andCallThrough()
     Given ->
       @io = new EventEmitter
