@@ -141,18 +141,6 @@ messages.attach(io);
 
 ```
 
-### Messages#dettach(io:SocketIO)
-
-```javascript
-
-var io = require('socket.io')(3000);
-var messages = Messages();
-messages.attach(io);
-
-messages.dettach(io);
-
-```
-
 ### Messages#actor(fn:Function)
 
 ```javascript

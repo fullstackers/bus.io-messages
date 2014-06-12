@@ -68,14 +68,6 @@ describe 'Messages', ->
       Then -> expect(@io.on).toHaveBeenCalledWith 'connection', @instance.onConnection
       And -> expect(@io.use).toHaveBeenCalledWith @instance.middleware
 
-    describe '#dettach', ->
-
-      Given -> @instance.attach @io
-      Given -> spyOn(@io.sockets.fns,['splice']).andCallThrough()
-      When -> @instance.dettach @io
-      Then -> expect(@io.removeListener).toHaveBeenCalledWith 'connection', @instance.onConnection
-      And -> expect(@io.sockets.fns.splice).toHaveBeenCalledWith 0, 1
-
     describe '#actor', ->
 
       Given -> @fn = (socket, cb) ->
