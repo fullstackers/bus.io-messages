@@ -2,7 +2,37 @@ EventEmitter = require('events').EventEmitter
 
 describe 'Messages', ->
 
-  Given -> @Messages = requireSubject 'lib/messages', {}
+  Given ->
+    @Message = class Message
+      constructor: ->
+        if not (@ instanceof Message)
+          return new Message
+        @data =
+          actor: 'me'
+          action: 'say'
+          content: 'hello'
+          target: 'you'
+          created: new Date
+          reference: null
+          id: 1
+      actor: -> @data.actor
+      target: -> @data.target
+      content: -> @data.content
+      action: -> @data.action
+      clone: ->
+        return new Message
+
+  Given -> @Messages = requireSubject 'lib/messages', {
+    'bus.io-common': @Message
+  }
+
+  Given ->
+    @io = new EventEmitter
+    @io.sockets = fns: []
+    @io.use = (fn) -> @sockets.fns.push fn
+    spyOn(@io,['on']).andCallThrough()
+    spyOn(@io,['removeListener']).andCallThrough()
+    spyOn(@io,['use']).andCallThrough()
 
   describe '#', ->
     When -> @res = @Messages()
@@ -13,10 +43,6 @@ describe 'Messages', ->
     Then -> expect(@res instanceof @Messages).toBe true
   
   describe '#listen', ->
-
-    Given ->
-      @io = new EventEmitter
-      spyOn(@io,['on']).andCallThrough()
     Given -> spyOn(@Messages,['make']).andCallThrough()
     When -> @res = @Messages.listen @io
     Then -> expect(@Messages.make).toHaveBeenCalled()
@@ -35,13 +61,6 @@ describe 'Messages', ->
     Given ->
       @instance = new @Messages
       spyOn(@instance,['emit']).andCallThrough()
-    Given ->
-      @io = new EventEmitter
-      @io.sockets = fns: []
-      @io.use = (fn) -> @sockets.fns.push fn
-      spyOn(@io,['on']).andCallThrough()
-      spyOn(@io,['removeListener']).andCallThrough()
-      spyOn(@io,['use']).andCallThrough()
 
     describe '#attach', ->
 
@@ -51,10 +70,11 @@ describe 'Messages', ->
 
     describe '#dettach', ->
 
+      Given -> @instance.attach @io
       Given -> spyOn(@io.sockets.fns,['splice']).andCallThrough()
       When -> @instance.dettach @io
       Then -> expect(@io.removeListener).toHaveBeenCalledWith 'connection', @instance.onConnection
-      And -> expect(@io.sockets.fns,['splice']).toHaveBeenCaleldWith 0, 1
+      And -> expect(@io.sockets.fns.splice).toHaveBeenCalledWith 0, 1
 
     describe '#actor', ->
 
@@ -108,19 +128,19 @@ describe 'Messages', ->
           When -> @instance.target @socket, @params, @cb
           Then -> expect(@cb).toHaveBeenCalledWith null, 'You'
 
-    describe '#exchange', ->
+    describe '#publisher', ->
 
-      Given -> @exchange = new EventEmitter
+      Given -> @publisher = new EventEmitter
 
       context 'with no arguments', ->
 
-        When -> @res = @instance.exchange()
+        When -> @res = @instance.publisher()
         Then -> expect(@res instanceof EventEmitter).toBe true
 
       context 'with an object', ->
 
-        When -> @res = @instance.exchange(@exchange).exchange()
-        Then -> expect(@res).toBe @exchange
+        When -> @res = @instance.publisher(@publisher).publisher()
+        Then -> expect(@res).toBe @publisher
 
     describe '#actions', ->
 
@@ -169,22 +189,23 @@ describe 'Messages', ->
       Given -> @params = [@action, @target, @content]
       Given -> spyOn(@instance,['actor']).andCallThrough()
       Given -> spyOn(@instance,['target']).andCallThrough()
-      Given -> spyOn(@instance,['exchange']).andCallThrough()
-      Given -> spyOn(@instance.exchange(),['emit']).andCallThrough()
+      Given -> spyOn(@instance,['publisher']).andCallThrough()
+      Given -> spyOn(@instance.publisher(),['emit']).andCallThrough()
       Given -> @instance.actor (socket, cb) -> cb null, socket.handshake.session.name
       Given -> @instance.target (socket, args, cb) -> cb null, args.shift()
       When -> @instance.onMessage @socket, @params
       Then -> expect(@instance.actor).toHaveBeenCalledWith @socket, jasmine.any(Function)
       And -> expect(@instance.target).toHaveBeenCalledWith @socket, [@content], jasmine.any(Function)
-      And -> expect(@instance.exchange).toHaveBeenCalled()
-      And -> expect(@instance.exchange().emit).toHaveBeenCalled()
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[0]).toBe 'message'
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].created instanceof Date).toBe true
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].actor).toBe @actor
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].target).toBe @target
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].action).toBe @action
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].content).toEqual [@content]
-      And -> expect(@instance.exchange().emit.mostRecentCall.args[2]).toEqual @socket
+      And -> expect(@instance.publisher).toHaveBeenCalled()
+      ###And -> expect(@instance.publisher().emit).toHaveBeenCalledWith 'message', jasmine.any(Message)
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[0]).toBe 'message'
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].created instanceof Date).toBe true
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].actor).toBe @actor
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].target).toBe @target
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].action).toBe @action
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].content).toEqual [@content]
+      And -> expect(@instance.publisher().emit.mostRecentCall.args[2]).toEqual @socket
+      ###
 
     describe '#autoPropagate', ->
 
@@ -208,7 +229,7 @@ describe 'Messages', ->
       Then -> expect(@socket.onevent).toBe @instance.onSocketEvent
       And -> expect(@next).toHaveBeenCalled()
 
-    describe.only '#onSocketEvent (packet:Object)', ->
+    describe '#onSocketEvent (packet:Object)', ->
 
       context 'autoPropagation(v:Boolean=false)', ->
 
