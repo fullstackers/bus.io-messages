@@ -128,20 +128,6 @@ describe 'Messages', ->
           When -> @instance.target @socket, @params, @cb
           Then -> expect(@cb).toHaveBeenCalledWith null, 'You'
 
-    describe '#publisher', ->
-
-      Given -> @publisher = new EventEmitter
-
-      context 'with no arguments', ->
-
-        When -> @res = @instance.publisher()
-        Then -> expect(@res instanceof EventEmitter).toBe true
-
-      context 'with an object', ->
-
-        When -> @res = @instance.publisher(@publisher).publisher()
-        Then -> expect(@res).toBe @publisher
-
     describe '#actions', ->
 
       When -> @res = @instance.actions()
@@ -189,23 +175,19 @@ describe 'Messages', ->
       Given -> @params = [@action, @target, @content]
       Given -> spyOn(@instance,['actor']).andCallThrough()
       Given -> spyOn(@instance,['target']).andCallThrough()
-      Given -> spyOn(@instance,['publisher']).andCallThrough()
-      Given -> spyOn(@instance.publisher(),['emit']).andCallThrough()
       Given -> @instance.actor (socket, cb) -> cb null, socket.handshake.session.name
       Given -> @instance.target (socket, args, cb) -> cb null, args.shift()
       When -> @instance.onMessage @socket, @params
       Then -> expect(@instance.actor).toHaveBeenCalledWith @socket, jasmine.any(Function)
       And -> expect(@instance.target).toHaveBeenCalledWith @socket, [@content], jasmine.any(Function)
-      And -> expect(@instance.publisher).toHaveBeenCalled()
-      ###And -> expect(@instance.publisher().emit).toHaveBeenCalledWith 'message', jasmine.any(Message)
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[0]).toBe 'message'
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].created instanceof Date).toBe true
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].actor).toBe @actor
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].target).toBe @target
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].action).toBe @action
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[1].content).toEqual [@content]
-      And -> expect(@instance.publisher().emit.mostRecentCall.args[2]).toEqual @socket
-      ###
+      And -> expect(@instance.emit).toHaveBeenCalled()
+      And -> expect(@instance.emit.mostRecentCall.args[0]).toBe 'message'
+      And -> expect(@instance.emit.mostRecentCall.args[1].data.created instanceof Date).toBe true
+      And -> expect(@instance.emit.mostRecentCall.args[1].data.actor).toBe @actor
+      And -> expect(@instance.emit.mostRecentCall.args[1].data.target).toBe @target
+      And -> expect(@instance.emit.mostRecentCall.args[1].data.action).toBe @action
+      And -> expect(@instance.emit.mostRecentCall.args[1].data.content).toEqual [@content]
+      And -> expect(@instance.emit.mostRecentCall.args[2]).toEqual @socket
 
     describe '#autoPropagate', ->
 

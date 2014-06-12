@@ -22,7 +22,7 @@ Clone this repository
 
 cd into the directory and install the dependencies
 
-    > cd message-exchange
+    > cd bus.io-messages
     > npm install && npm shrinkwrap --dev
 
 # Examples
@@ -61,7 +61,7 @@ Messages have a *target* we can specify a method to extract the target from the 
 
 ```javascript
 
-message.target(function (socket, params, cb) {
+messages.target(function (socket, params, cb) {
 
   if (!params || !params.length)
     return cb(new Error('missing data'));
@@ -74,26 +74,6 @@ message.target(function (socket, params, cb) {
 
 ```
 
-If we do not specify a target extractor.  The default target will be the actor.
-
-The *messages* object will construct a *message* and publish it to an exchange.
-
-An exchange is just an event emitter.
-
-```javascript
-
-var exchange = new require('events').EventEmitter();
-
-```
-
-Attach the messages to the exchange.
-
-```javascript
-
-messages.exchange(exchange);
-
-```
-
 We can listen to actions by calling *action* and passing in the *name* of the action.
 
 ```javascript
@@ -102,7 +82,8 @@ messages.action('say');
 
 ```
 
-When the *socket* receives an *event*, *messages* will produce an object like this.
+When the *socket* receives an *event*, *messages* will produce an object like this and trigger
+a `message` event with the object.
 
 ```javascript
 
@@ -112,7 +93,7 @@ When the *socket* receives an *event*, *messages* will produce an object like th
   "actor":"vL3fesBeM5ixbqhNAAAA",
   "target":"you",
   "content":["hello, world!"]
- }
+}
 
 ```
 
@@ -128,6 +109,140 @@ messages.autoPropagate(true);
 
 ```
 
+# API
+
+## Messages
+
+### Messages#()
+
+```javascript
+
+var messages = Messages();
+
+```
+
+### Messages#(io:SocketIO)
+
+```javascript
+
+var io = require('socket.io')(3000);
+
+var messages = Messages(io);
+
+```
+
+### Messages#attach(io:SocketIO)
+
+```javascript
+
+var io = require('socket.io')(3000);
+var messages = Messages();
+messages.attach(io);
+
+```
+
+### Messages#dettach(io:SocketIO)
+
+```javascript
+
+var io = require('socket.io')(3000);
+var messages = Messages();
+messages.attach(io);
+
+messages.dettach(io);
+
+```
+
+### Messages#actor(fn:Function)
+
+```javascript
+
+messages.actor(function (socket, cb) {
+  cb(null, socket.id);
+});
+
+```
+
+### Messages#target(fn:Function)
+
+```javascript
+
+messages.target(function (socket, params, cb) {
+  cb(null, params.pop() || socket.id);
+});
+
+```
+
+### Messages#action(v:String)
+
+```javascript
+
+messsages.action('shout');
+
+```
+
+### Messages#actions()
+
+```javascript
+
+var actions = messsages.actions();
+
+```
+
+### Messages#autoPropagate(v:Boolean)
+
+```javascript
+
+messages.autoPropagate(true);
+
+```
+
+### Messages#autoPropagate()
+
+```javascript
+
+var propagating = messages.autoPropagate();
+
+```
+
+### Events
+
+#### error
+
+Triggered when an `Error` occurs
+
+```javascript
+
+messages.on('error', function (err, socket, args) { 
+
+});
+
+```
+
+#### action
+
+Triggered when we add a new `action`
+
+```javascript
+
+messages.on('action', function (name) {
+
+});
+
+```
+
+#### message
+
+Triggered when we received a message from the socket.io connection
+
+```javascript 
+
+messages.on('message', function (message) {
+
+});
+
+```
+
 # Running Tests
 
 Tests are run using grunt.  You must first globally install the grunt-cli with npm.
@@ -140,15 +255,4 @@ To run the tests, just run grunt
 
     > grunt spec:unit
 
-## TODO
-
-We can pass a method to manipulate the message before being published.
-
-```javascript
-
-messages.action('say', fuction (event, what, cb) {
-  event.content = what.toUpperCase();
-  cb();
-});
-
-```
+# TODO
