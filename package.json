@@ -1,6 +1,6 @@
 {
   "name": "bus.io-messages",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "This produces mesages as it listens for events on a socket.",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,6 @@
     "socket.io-client": "^1.0.2"
   },
   "dependencies": {
-    "bus.io-common": "^0.0.5"
+    "bus.io-common": "^0.0.7"
   }
 }
