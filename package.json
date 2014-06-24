@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "bus.io-common": "^0.0.7",
-    "debug": "^1.0.2"
+    "debug": "^1.0.2",
+    "socket.io-events": "^0.1.0"
   }
 }
