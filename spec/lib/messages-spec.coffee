@@ -48,7 +48,7 @@ describe 'Messages', ->
     Then -> expect(@Messages.make).toHaveBeenCalled()
     And -> expect(@io.on).toHaveBeenCalledWith 'connection', @res.onConnection
 
-  context 'an instance', ->
+  context 'prototype', ->
 
     Given ->
       @socket = new EventEmitter
