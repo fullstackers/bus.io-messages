@@ -1,29 +1,10 @@
 EventEmitter = require('events').EventEmitter
+Message = require('bus.io-common').Message
 
 describe 'Messages', ->
 
-  Given ->
-    @Message = class Message
-      constructor: ->
-        if not (@ instanceof Message)
-          return new Message
-        @data =
-          actor: 'me'
-          action: 'say'
-          content: 'hello'
-          target: 'you'
-          created: new Date
-          reference: null
-          id: 1
-      actor: -> @data.actor
-      target: -> @data.target
-      content: -> @data.content
-      action: -> @data.action
-      clone: ->
-        return new Message
-
   Given -> @Messages = requireSubject 'lib/messages', {
-    'bus.io-common': @Message
+    'bus.io-common': Message
   }
 
   Given ->
@@ -160,6 +141,7 @@ describe 'Messages', ->
         And -> expect(@socket.removeAllListeners).toHaveBeenCalled()
 
     describe '#onMessage', ->
+
       Given -> @actor = 'I'
       Given -> @action = 'say'
       Given -> @target = 'You'
@@ -180,6 +162,13 @@ describe 'Messages', ->
       And -> expect(@instance.emit.mostRecentCall.args[1].data.action).toBe @action
       And -> expect(@instance.emit.mostRecentCall.args[1].data.content).toEqual [@content]
       And -> expect(@instance.emit.mostRecentCall.args[2]).toEqual @socket
+
+    describe.only '#onMessage (socket:Socket, args:Array=[name:String, message:Message])', ->
+
+      Given -> @message = Message()
+      Given -> @params = [@action, @message]
+      When -> @instance.onMessage @socket, @params
+      Then -> expect(@instance.emit).toHaveBeenCalledWith 'message', @message, @socket
 
     describe '#autoPropagate', ->
 
